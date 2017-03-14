@@ -8,8 +8,13 @@ using Microsoft.ServiceFabric.Data.Collections;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using Service.Weather.Interfaces;
-using Service.Common;
 using Microsoft.ServiceFabric.Services.Remoting.Runtime;
+using System.Net.Http;
+using Service.Common.Util;
+using System.Xml.Serialization;
+using System.IO;
+using System.Xml;
+using System.Text;
 
 namespace Service.Weather
 {
@@ -70,13 +75,34 @@ namespace Service.Weather
 
         Task<string> IWeatherService.GetCurrentWeather(string cityName)
         {
-            CustomContextDataDto context = CustomServiceContext.GetContext();
-            return Task.Run(() => { return cityName + (context != null ? context.ID : string.Empty); });
+            string baseUri = FabricConfigUtil.GetConfigValue("WebServiceSettings", "BaseUri");
+            using (HttpClientHandler handler = new HttpClientHandler { AutomaticDecompression = System.Net.DecompressionMethods.GZip })
+            {
+                using (HttpClient client = new HttpClient(handler) { BaseAddress = new Uri(baseUri + "/") })
+                {
+                    //FormUrlEncodedContent content = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("byProvinceName", cityName) });
+                    //HttpResponseMessage responseMessage = client.PostAsync("getSupportCity", content).Result;
+                    //HttpResponseMessage responseMessage = client.GetAsync("getSupportProvince").Result;
+                    FormUrlEncodedContent content = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("theCityName", cityName) });
+                    HttpResponseMessage responseMessage = client.PostAsync("getWeatherbyCityName", content).Result;
+                    return responseMessage.Content.ReadAsStringAsync();
+                }
+            }
         }
 
-        Task<List<string>> IWeatherService.GetSupportCity(string provinceName)
+        Task<string> IWeatherService.GetSupportCity(string provinceName)
         {
-            return Task.Run(() => { return new List<string> { provinceName }; });
+            string baseUri = FabricConfigUtil.GetConfigValue("WebServiceSettings", "BaseUri");
+            using (HttpClientHandler handler = new HttpClientHandler { AutomaticDecompression = System.Net.DecompressionMethods.GZip })
+            {
+                using (HttpClient client = new HttpClient(handler) { BaseAddress = new Uri(baseUri + "/") })
+                {
+                    FormUrlEncodedContent content = new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("byProvinceName", provinceName) });
+                    HttpResponseMessage responseMessage = client.PostAsync("getSupportCity", content).Result;
+                    string result = responseMessage.Content.ReadAsStringAsync().Result;
+                    return Task.Run(()=> { return result; });
+                }
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Service.Common;
 using Service.Weather.Interfaces;
+using System.Runtime.Remoting.Messaging;
 
 namespace SFWorld.Web.Controllers
 {
@@ -17,11 +18,11 @@ namespace SFWorld.Web.Controllers
 
         public IActionResult About()
         {
-            Guid guid = Guid.NewGuid();
+            string userAgent = Request.Headers["User-Agent"].ToString();
             var weather = ServiceProxyUtil.InvokeService<IWeatherService, string>(ServiceProxyUtil.GetServiceUri("Weather"), (weatherService) =>
             {
-                return weatherService.GetCurrentWeather("Changchun");
-            }, new CustomContextDataDto { ID = guid.ToString(), Name = DateTime.Now.ToString() }).Result;
+                return weatherService.GetCurrentWeather("北京");
+            }, new CustomContextDataDto { ID = userAgent, Name = DateTime.Now.ToString() }).Result;
 
             ViewData["Message"] = weather;
             return View();
@@ -29,12 +30,12 @@ namespace SFWorld.Web.Controllers
 
         public IActionResult Contact()
         {
-            Guid guid = Guid.NewGuid();
-            var weather = ServiceProxyUtil.InvokeService<IWeatherService, string>(ServiceProxyUtil.GetServiceUri("Weather"), (weatherService) =>
+            string userAgent = Request.Headers["User-Agent"].ToString();
+            var cities = ServiceProxyUtil.InvokeService<IWeatherService, string>(ServiceProxyUtil.GetServiceUri("Weather"), (weatherService) =>
             {
-                return weatherService.GetCurrentWeather("Changchun");
-            }, new CustomContextDataDto { ID = guid.ToString(), Name = DateTime.Now.ToString() }).Result;
-            ViewData["Message"] = weather;
+                return weatherService.GetSupportCity("辽宁");
+            }, new CustomContextDataDto { ID = userAgent, Name = DateTime.Now.ToString() }).Result;
+            ViewData["Message"] = cities;
 
             return View();
         }

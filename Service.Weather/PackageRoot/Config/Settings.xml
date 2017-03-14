@@ -13,4 +13,19 @@
     <Parameter Name="MyParameter" Value="Value1" />
   </Section>
   -->
+  <!--"TransportSettings" section without any prefix.-->
+  <Section Name="TransportSettings">
+    <Parameter Name="MaxMessageSize" Value="102400000" />
+    <Parameter Name="OperationTimeoutInSeconds" Value="300" />
+    <!--<Parameter Name="SecurityCredentialsType" Value="X509" />
+    <Parameter Name="CertificateFindType" Value="FindByThumbprint" />
+    <Parameter Name="CertificateFindValue" Value="78 12 20 5a 39 d2 23 76 da a0 37 f0 5a ed e3 60 1a 7e 64 bf" />
+    <Parameter Name="CertificateStoreLocation" Value="LocalMachine" />
+    <Parameter Name="CertificateStoreName" Value="My" />
+    <Parameter Name="CertificateProtectionLevel" Value="EncryptAndSign" />
+    <Parameter Name="CertificateRemoteCommonNames" Value="WinFabric-Test-SAN1-Alice" />-->
+  </Section>
+  <Section Name="WebServiceSettings">
+    <Parameter Name="BaseUri" Value="http://www.webxml.com.cn/WebServices/WeatherWebService.asmx" />
+  </Section>
 </Settings>

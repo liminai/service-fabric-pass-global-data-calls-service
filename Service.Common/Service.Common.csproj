@@ -81,6 +81,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -89,16 +90,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\CustomFabricTransportServiceRemotingClient.cs" />
-    <Compile Include="Client\CustomFabricTransportServiceRemotingClientFactory.cs" />
-    <Compile Include="CustomContextDataDto.cs" />
-    <Compile Include="CustomServiceContext.cs" />
+    <Compile Include="CommunicationHack\Client\CustomFabricTransportServiceRemotingClient.cs" />
+    <Compile Include="CommunicationHack\Client\CustomFabricTransportServiceRemotingClientFactory.cs" />
+    <Compile Include="CommunicationHack\CustomContextDataDto.cs" />
+    <Compile Include="CommunicationHack\CustomServiceContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceProxyUtil.cs" />
-    <Compile Include="ServiceRemotingMessageHeadersExtension.cs" />
-    <Compile Include="ServiceRequestContext.cs" />
-    <Compile Include="Service\CustomFabricTransportServiceRemotingProviderAttribute.cs" />
-    <Compile Include="Service\CustomServiceRemotingDispatcher.cs" />
+    <Compile Include="CommunicationHack\ServiceProxyUtil.cs" />
+    <Compile Include="CommunicationHack\ServiceRemotingMessageHeadersExtension.cs" />
+    <Compile Include="CommunicationHack\ServiceRequestContext.cs" />
+    <Compile Include="CommunicationHack\Service\CustomFabricTransportServiceRemotingProviderAttribute.cs" />
+    <Compile Include="CommunicationHack\Service\CustomServiceRemotingDispatcher.cs" />
+    <Compile Include="Util\FabricConfigUtil.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
