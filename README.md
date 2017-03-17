@@ -19,7 +19,7 @@ http://stackoverflow.com/questions/41629755/passing-user-and-auditing-informatio
 
 ## Change Log
 
-### v0.1.1.020170317
+### v 1.0.1.020170317
 
 1. Add WebApi Project
 2. Support Https in ASP.Net Core and WebApi(Use Default IIS Express Development Certificate)
