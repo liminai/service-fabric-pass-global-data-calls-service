@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Service.Weather\Service.Weather.csproj" />
+    <ProjectReference Include="..\Service.WebApi\Service.WebApi.csproj" />
     <ProjectReference Include="..\Service.Web\Service.Web.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />

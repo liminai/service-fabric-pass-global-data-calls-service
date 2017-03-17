@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
+using System.Fabric.Description;
 
 namespace Service.Web
 {
@@ -28,24 +29,24 @@ namespace Service.Web
         /// <returns>The collection of listeners.</returns>
         protected override IEnumerable<ServiceInstanceListener> CreateServiceInstanceListeners()
         {
-            return new ServiceInstanceListener[]
+            var endpoints = this.Context.CodePackageActivationContext.GetEndpoints()
+                                   .Where(endpoint => endpoint.Protocol == EndpointProtocol.Http || endpoint.Protocol == EndpointProtocol.Https)
+                                   .Select(endpoint => endpoint.Name);
+            return endpoints.Select(endpoint => new ServiceInstanceListener(
+            serviceContext => new WebListenerCommunicationListener(serviceContext, endpoint, url =>
             {
-                new ServiceInstanceListener(serviceContext =>
-                    new WebListenerCommunicationListener(serviceContext, "ServiceEndpoint", url =>
-                    {
-                        ServiceEventSource.Current.ServiceMessage(serviceContext, $"Starting WebListener on {url}");
+                ServiceEventSource.Current.ServiceMessage(serviceContext, $"Starting WebListener on {url}");
 
-                        return new WebHostBuilder().UseWebListener()
-                                    .ConfigureServices(
-                                        services => services
-                                            .AddSingleton<StatelessServiceContext>(serviceContext))
-                                    .UseContentRoot(Directory.GetCurrentDirectory())
-                                    .UseStartup<Startup>()
-                                    .UseApplicationInsights()
-                                    .UseUrls(url)
-                                    .Build();
-                    }))
-            };
+                return new WebHostBuilder().UseWebListener()
+                            .ConfigureServices(
+                                services => services
+                                    .AddSingleton<StatelessServiceContext>(serviceContext))
+                            .UseContentRoot(Directory.GetCurrentDirectory())
+                            .UseStartup<Startup>()
+                            .UseApplicationInsights()
+                            .UseUrls(url)
+                            .Build();
+            }), endpoint));
         }
     }
 }

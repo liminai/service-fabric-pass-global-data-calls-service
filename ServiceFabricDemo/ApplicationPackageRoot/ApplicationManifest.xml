@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="ServiceFabricDemoType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
+    <Parameter Name="WebApi_InstanceCount" DefaultValue="-1" />
     <Parameter Name="Weather_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="Weather_PartitionCount" DefaultValue="1" />
     <Parameter Name="Weather_TargetReplicaSetSize" DefaultValue="3" />
@@ -10,12 +11,22 @@
        should match the Name and Version attributes of the ServiceManifest element defined in the 
        ServiceManifest.xml file. -->
   <ServiceManifestImport>
+    <ServiceManifestRef ServiceManifestName="Service.WebApiPkg" ServiceManifestVersion="1.0.0" />
+    <ConfigOverrides />
+    <Policies>
+      <EndpointBindingPolicy EndpointRef="ServiceEndpointHttps" CertificateRef="web_cert" />
+    </Policies>
+  </ServiceManifestImport>
+  <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="Service.WeatherPkg" ServiceManifestVersion="1.0.0" />
     <ConfigOverrides />
   </ServiceManifestImport>
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="Service.WebPkg" ServiceManifestVersion="1.0.0" />
     <ConfigOverrides />
+    <Policies>
+      <EndpointBindingPolicy EndpointRef="ServiceEndpointHttps" CertificateRef="web_cert" />
+    </Policies>
   </ServiceManifestImport>
   <DefaultServices>
     <!-- The section below creates instances of service types, when an instance of this 
@@ -23,6 +34,11 @@
          ServiceFabric PowerShell module.
          
          The attribute ServiceTypeName below must match the name defined in the imported ServiceManifest.xml file. -->
+    <Service Name="WebApi">
+      <StatelessService ServiceTypeName="WebApiType" InstanceCount="[WebApi_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
     <Service Name="Weather">
       <StatefulService ServiceTypeName="WeatherType" TargetReplicaSetSize="[Weather_TargetReplicaSetSize]" MinReplicaSetSize="[Weather_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[Weather_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
@@ -34,4 +50,7 @@
       </StatelessService>
     </Service>
   </DefaultServices>
+  <Certificates>
+    <EndpointCertificate X509StoreName="MY" X509FindValue="11 b8 24 6a d1 58 41 e5 45 14 3c ea 5d 0c aa eb 21 76 83 d4" Name="web_cert" />
+  </Certificates>
 </ApplicationManifest>

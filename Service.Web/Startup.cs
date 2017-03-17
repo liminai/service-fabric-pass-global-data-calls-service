@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.AspNetCore.Server.Kestrel;
 
 namespace Service.Web
 {
@@ -29,6 +31,12 @@ namespace Service.Web
         {
             // Add framework services.
             services.AddMvc();
+
+            //X509Certificate2 cert = GetCertificate();
+            //services.Configure<KestrelServerOptions>(options =>
+            //{
+            //    options.UseHttps(cert);
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
