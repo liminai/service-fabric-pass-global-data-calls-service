@@ -16,3 +16,10 @@ When you use stateful service or stateless service in service fabric platform, y
 
 Thanks for yoape's help from this link: 
 http://stackoverflow.com/questions/41629755/passing-user-and-auditing-information-in-calls-to-reliable-services-in-service-f
+
+## Change Log
+
+###v0.1.1.020170317
+
+1. Add WebApi Project
+2. Support Https in ASP.Net Core and WebApi(Use Default IIS Express Development Certificate)
