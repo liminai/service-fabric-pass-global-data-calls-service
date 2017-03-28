@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Server.Kestrel;
+using Service.Common.Util;
 
 namespace Service.Web
 {
@@ -29,14 +30,16 @@ namespace Service.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            X509Certificate2 cert = CertificateUtil.GetCertificate(StoreName.My.ToString(), FabricConfigUtil.GetConfigValue("HTTPSConfig", "CertThumbprint"));
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.NoDelay = true;
+                options.UseHttps(cert);
+                options.UseConnectionLogging();
+            });
+
             // Add framework services.
             services.AddMvc();
-
-            //X509Certificate2 cert = GetCertificate();
-            //services.Configure<KestrelServerOptions>(options =>
-            //{
-            //    options.UseHttps(cert);
-            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -6,6 +6,9 @@
     <Parameter Name="Weather_PartitionCount" DefaultValue="1" />
     <Parameter Name="Weather_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="Web_InstanceCount" DefaultValue="-1" />
+    <Parameter Name="CertThumbprint" DefaultValue="14 de 56 15 ee d1 e9 e1 6c d9 ef 4e 7c 50 6a d4 61 3a 35 1f" />
+    <!--Server Type: Kestrel or WebListener-->
+    <Parameter Name="ServerType" DefaultValue="Kestrel" />
   </Parameters>
   <!-- Import the ServiceManifest from the ServicePackage. The ServiceManifestName and ServiceManifestVersion 
        should match the Name and Version attributes of the ServiceManifest element defined in the 
@@ -23,7 +26,18 @@
   </ServiceManifestImport>
   <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="Service.WebPkg" ServiceManifestVersion="1.0.0" />
-    <ConfigOverrides />
+    <ConfigOverrides>
+      <ConfigOverride Name="Config">
+        <Settings>
+          <Section Name="HTTPSConfig">
+            <Parameter Name="CertThumbprint" Value="[CertThumbprint]" />
+          </Section>
+          <Section Name="ServerConfig">
+            <Parameter Name="ServerType" Value="[ServerType]" />
+          </Section>
+        </Settings>
+      </ConfigOverride>
+    </ConfigOverrides>
     <Policies>
       <EndpointBindingPolicy EndpointRef="ServiceEndpointHttps" CertificateRef="web_cert" />
     </Policies>
@@ -50,7 +64,8 @@
       </StatelessService>
     </Service>
   </DefaultServices>
+  <!--Use IIS Express Development Certificate-->
   <Certificates>
-    <EndpointCertificate X509StoreName="MY" X509FindValue="11 b8 24 6a d1 58 41 e5 45 14 3c ea 5d 0c aa eb 21 76 83 d4" Name="web_cert" />
+    <EndpointCertificate X509StoreName="MY" X509FindValue="[CertThumbprint]" Name="web_cert" />
   </Certificates>
 </ApplicationManifest>

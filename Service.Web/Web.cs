@@ -11,6 +11,9 @@ using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
 using Microsoft.ServiceFabric.Services.Communication.Runtime;
 using Microsoft.ServiceFabric.Services.Runtime;
 using System.Fabric.Description;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
+using Service.Common.Util;
 
 namespace Service.Web
 {
@@ -19,9 +22,12 @@ namespace Service.Web
     /// </summary>
     internal sealed class Web : StatelessService
     {
+        private static ServiceEventSource logger = ServiceEventSource.Current;
+
         public Web(StatelessServiceContext context)
             : base(context)
-        { }
+        {
+        }
 
         /// <summary>
         /// Optional override to create listeners (like tcp, http) for this service instance.
@@ -32,21 +38,48 @@ namespace Service.Web
             var endpoints = this.Context.CodePackageActivationContext.GetEndpoints()
                                    .Where(endpoint => endpoint.Protocol == EndpointProtocol.Http || endpoint.Protocol == EndpointProtocol.Https)
                                    .Select(endpoint => endpoint.Name);
-            return endpoints.Select(endpoint => new ServiceInstanceListener(
-            serviceContext => new WebListenerCommunicationListener(serviceContext, endpoint, url =>
+            string serverType = FabricConfigUtil.GetConfigValue("ServerConfig", "ServerType");
+            if ("WebListener".ToLowerInvariant().Equals(serverType))
             {
-                ServiceEventSource.Current.ServiceMessage(serviceContext, $"Starting WebListener on {url}");
-
-                return new WebHostBuilder().UseWebListener()
-                            .ConfigureServices(
-                                services => services
-                                    .AddSingleton<StatelessServiceContext>(serviceContext))
-                            .UseContentRoot(Directory.GetCurrentDirectory())
-                            .UseStartup<Startup>()
-                            .UseApplicationInsights()
-                            .UseUrls(url)
-                            .Build();
-            }), endpoint));
+                //Use Web Listener
+                return endpoints.Select(endpoint => new ServiceInstanceListener(
+                    serviceContext => new WebListenerCommunicationListener(serviceContext, endpoint, (url, listener) =>
+                    {
+                        ServiceEventSource.Current.ServiceMessage(serviceContext, $"Starting WebListener on {url}");
+                        return new WebHostBuilder()
+                             .UseWebListener()
+                             .UseApplicationInsights()
+                             .ConfigureServices(
+                                 services => services
+                                     .AddSingleton<StatelessServiceContext>(serviceContext))
+                             .UseContentRoot(Directory.GetCurrentDirectory())
+                             //.UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
+                             .UseStartup<Startup>()
+                             .UseUrls(url)
+                             .Build();
+                    }), endpoint));
+            }
+            else
+            {
+                //Use Kestrel
+                return endpoints.Select(endpoint => new ServiceInstanceListener(
+                    serviceContext => new KestrelCommunicationListener(serviceContext, endpoint, (url, listener) =>
+                    {
+                        ServiceEventSource.Current.ServiceMessage(serviceContext, $"Starting WebListener on {url}");
+                        return new WebHostBuilder()
+                                    .UseKestrel()
+                                    .UseApplicationInsights()
+                                    .ConfigureServices(
+                                        services => services
+                                            .AddSingleton<StatelessServiceContext>(serviceContext))
+                                    .UseContentRoot(Directory.GetCurrentDirectory())
+                                    .UseServiceFabricIntegration(listener, ServiceFabricIntegrationOptions.None)
+                                    .UseStartup<Startup>()
+                                    .UseUrls(url)
+                                    .Build();
+                    }
+                    ), endpoint));
+            }
         }
     }
 }
